@@ -1,0 +1,6 @@
+azure-functions==1.24.0
+numpy==2.3.5
+opencv-python-headless==4.13.0.92
+onnxruntime==1.24.2
+Pillow==12.3.0
+typing_extensions==4.15.0

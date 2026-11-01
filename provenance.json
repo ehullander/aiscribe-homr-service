@@ -1,0 +1,112 @@
+{
+  "upstream": "https://github.com/liebharc/homr",
+  "upstream_version": "0.7.0",
+  "aiscribe_commit": "ae63ef0f7dfbd34da12bb92009d5fc3dc73b986c",
+  "model_sha256": "6ed36640db4ef5d223098b6d5efe4eda97c66b24a2c72faab8a018c749003a8d",
+  "files": {
+    "homr/__init__.py": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "provenance": "HOMR 0.7.0: ios/AIScribePrototype/Vendor/app_packages/iphonesimulator/homr/__init__.py"
+    },
+    "homr/constants.py": {
+      "sha256": "2ddad8b8a79b931aae63c1f9a88f6125bed2a28975fbe5d90781f300ce682786",
+      "provenance": "HOMR 0.7.0: ios/AIScribePrototype/Vendor/app_packages/iphonesimulator/homr/constants.py"
+    },
+    "homr/type_definitions.py": {
+      "sha256": "f98c9ac820aae6c81b384c676a9c7848093723756c2f3628f8950c97a18fa3bb",
+      "provenance": "HOMR 0.7.0: ios/AIScribePrototype/Vendor/app_packages/iphonesimulator/homr/type_definitions.py"
+    },
+    "homr/simple_logging.py": {
+      "sha256": "0a289e6deb8d55e0bcd709f4651246a417efb744447a9340b3cd5eb5669271ed",
+      "provenance": "HOMR 0.7.0: ios/AIScribePrototype/Vendor/app_packages/iphonesimulator/homr/simple_logging.py"
+    },
+    "homr/find_peaks.py": {
+      "sha256": "6fd390137077cab7d64104931e3d06b0149581d7217b855ae4080addad21e8f2",
+      "provenance": "HOMR 0.7.0: ios/AIScribePrototype/Vendor/app_packages/iphonesimulator/homr/find_peaks.py"
+    },
+    "homr/image_utils.py": {
+      "sha256": "b293ffad901fee69e11fcee672f2fc7aa61a44216143b95b8a916655400eea06",
+      "provenance": "HOMR 0.7.0: ios/AIScribePrototype/Vendor/app_packages/iphonesimulator/homr/image_utils.py"
+    },
+    "homr/bounding_boxes.py": {
+      "sha256": "5a67a8d4705cca33aa8b73b072674e28ab4676bd04b63a9649e88032554eaae1",
+      "provenance": "HOMR 0.7.0: ios/AIScribePrototype/Vendor/app_packages/iphonesimulator/homr/bounding_boxes.py"
+    },
+    "homr/model.py": {
+      "sha256": "2f976bb441d5098484c35d0150a4f2e0b4b5244517ff8bae3aad210b6e4450d2",
+      "provenance": "HOMR 0.7.0: ios/AIScribePrototype/Vendor/app_packages/iphonesimulator/homr/model.py"
+    },
+    "homr/debug.py": {
+      "sha256": "dc9e208c605389a967b58a4edee955bfa8ab559d2ac66cd3f677877c8c42b5b3",
+      "provenance": "HOMR 0.7.0: ios/AIScribePrototype/Vendor/app_packages/iphonesimulator/homr/debug.py"
+    },
+    "homr/noise_filtering.py": {
+      "sha256": "0752bba4acca214407408b8f4e4f0540893e07a288f1272f3bfbd4395eca724b",
+      "provenance": "HOMR 0.7.0: ios/AIScribePrototype/Vendor/app_packages/iphonesimulator/homr/noise_filtering.py"
+    },
+    "homr/note_detection.py": {
+      "sha256": "7dc0b3f8038c47d5b4f263ae16b241ac358e12e2d13055aaa6593aaf0be1014b",
+      "provenance": "HOMR 0.7.0: ios/AIScribePrototype/Vendor/app_packages/iphonesimulator/homr/note_detection.py"
+    },
+    "homr/bar_line_detection.py": {
+      "sha256": "0fd0ec988d240842a72348770769ef1a2c3a47a95da8996017aed04455589a6d",
+      "provenance": "HOMR 0.7.0: ios/AIScribePrototype/Vendor/app_packages/iphonesimulator/homr/bar_line_detection.py"
+    },
+    "homr/staff_detection.py": {
+      "sha256": "4046f4b1c23ea4e51ed813399ad59d4eeee9371c0ded83d1225cad87543ccee1",
+      "provenance": "HOMR 0.7.0: ios/AIScribePrototype/Vendor/app_packages/iphonesimulator/homr/staff_detection.py"
+    },
+    "homr/resize.py": {
+      "sha256": "cc2ff7992ed5c2473529ab686912be8148c2a28059683362a6a346424cc97906",
+      "provenance": "HOMR 0.7.0: ios/AIScribePrototype/Vendor/app_packages/iphonesimulator/homr/resize.py"
+    },
+    "structural/detector.py": {
+      "sha256": "e5576b386e9c016b54af21d205272f415666df1d2a028596c1deadecf2489ea3",
+      "provenance": "AIScribe code/ocr/homr_structural.py; CPU availability and persistent session only"
+    },
+    "structural/barline_fusion.py": {
+      "sha256": "7acc7e1c9d00f3317f534727ca5fb36b4ba8190f248c378df759c6bb33bc2c02",
+      "provenance": "Exact ordered_staff_trace helper from AIScribe"
+    },
+    "structural/__init__.py": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "provenance": "Package marker"
+    },
+    "function_app.py": {
+      "sha256": "22a7d7796ff631c1307003f0a65a97451300a36382b89aae87c3f8e11284b08a",
+      "provenance": "AIScribe server/homr_service/function_app.py"
+    },
+    "service.py": {
+      "sha256": "65d5463bb72c71cd3109ec71a0f3832ac77b65995594f6ea95d07bdab2a225cd",
+      "provenance": "AIScribe server/homr_service/service.py"
+    },
+    "host.json": {
+      "sha256": "a5aab1be4302808a49ce6e4b1f02846db597820b54ea16d1668d0c23d4bf57a4",
+      "provenance": "AIScribe server/homr_service/host.json"
+    },
+    "requirements.txt": {
+      "sha256": "69a93c8bb1ea4e616c626b063ef41803dcc6195794575bc2cd95a5575c323b0f",
+      "provenance": "AIScribe server/homr_service/requirements.txt"
+    },
+    "README.md": {
+      "sha256": "8638c2adf898ae40a0eb87b375d7808a11dffb7ba58be83a787ffc5eb09f54d2",
+      "provenance": "AIScribe server/homr_service/README.md"
+    },
+    "structural/runtime.py": {
+      "sha256": "90666d39ae9dc9badfd179db946e242c472e2c267d86370db793748b564a2b1f",
+      "provenance": "CPU session reuse, inference unchanged"
+    },
+    "LICENSE": {
+      "sha256": "a6de0dc64ada3b5141517c0167b109dfc2adb3d1d8b27ff1745f337331b2a5f4",
+      "provenance": "HOMR AGPL-3.0 license"
+    },
+    ".gitignore": {
+      "sha256": "cb3c5939a3734f540f83d5481992504bc5b2cbd235bd51bfb915679ba74568bd",
+      "provenance": "Service exclusions"
+    },
+    "models/segnet.onnx": {
+      "sha256": "6ed36640db4ef5d223098b6d5efe4eda97c66b24a2c72faab8a018c749003a8d",
+      "provenance": "Pinned HOMR 0.7.0 segmentation weight"
+    }
+  }
+}
