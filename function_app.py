@@ -2,8 +2,9 @@
 import json
 import gzip
 import os
+import logging
 from pathlib import Path
-from threading import Lock
+from threading import Lock, Thread
 from time import perf_counter
 import azure.functions as func
 from service import StructuralService, RequestError, MODEL_SHA256
@@ -26,7 +27,8 @@ def service():
 @app.route(route='health', methods=['GET'])
 def health(req):
     return func.HttpResponse(json.dumps(dict(service='homr-structural', model_sha256=MODEL_SHA256,
-        device='cpu', source_url=os.environ.get('HOMR_SOURCE_URL', ''))), mimetype='application/json')
+        device='cpu', source_url=os.environ.get('HOMR_SOURCE_URL', ''),
+        model_ready=bool(_service and _service.model_ready))), mimetype='application/json')
 
 
 @app.route(route='source', methods=['GET'])
@@ -60,3 +62,15 @@ def detect(req):
         # a transport failure. The caller retains Apple evidence and source.
         return func.HttpResponse('{"error":"no_supported_geometry"}', status_code=422,
                                  mimetype='application/json')
+
+
+def preload():
+    try:service().prepare()
+    except Exception:
+        # A failed warmup is visible but does not prevent health/status or the
+        # normal first-request path from retrying the same pinned model load.
+        logging.warning('homr_model_preload_failed')
+
+
+if os.environ.get('HOMR_PRELOAD_MODEL')=='1':
+    Thread(target=preload,name='homr-preload',daemon=True).start()

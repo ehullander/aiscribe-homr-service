@@ -1,7 +1,7 @@
 {
   "upstream": "https://github.com/liebharc/homr",
   "upstream_version": "0.7.0",
-  "aiscribe_commit": "2513c5f1614922ddf86500049fd72b5fe623efb2",
+  "aiscribe_commit": "bfbc664e11d3b48ebe50602e4e263d8705c536bc",
   "model_sha256": "6ed36640db4ef5d223098b6d5efe4eda97c66b24a2c72faab8a018c749003a8d",
   "files": {
     "homr/__init__.py": {
@@ -73,11 +73,11 @@
       "provenance": "Package marker"
     },
     "function_app.py": {
-      "sha256": "66e08909a2b25016831c3837715bd33a9d677b41de960abde93850758f3a8f42",
+      "sha256": "5e3eb4cf22bead80a1be8be5c588730827592806820eb5d3684912cdc4deb80f",
       "provenance": "AIScribe server/homr_service/function_app.py"
     },
     "service.py": {
-      "sha256": "f3a890491e1b1ed4df3a86254668016a6de55d91a1f4d0368ea6031488162956",
+      "sha256": "4c079db3a72f7af54e15b314d849a955bab7c6455e6d9021ec43eb650cbfe001",
       "provenance": "AIScribe server/homr_service/service.py"
     },
     "host.json": {

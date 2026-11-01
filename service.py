@@ -24,7 +24,7 @@ class RequestError(Exception):
 
 
 class StructuralService:
-    def __init__(self, token, model, detector=None, source_url=''):
+    def __init__(self, token, model, detector=None, source_url='', preloader=None):
         if not token or len(token) < 32:
             raise ValueError('A private service credential is required')
         self.token = token
@@ -34,6 +34,23 @@ class StructuralService:
         self.lock = Lock()
         self.worker_id = uuid4().hex[:12]
         self.calls = 0
+        self.model_ready = False
+        self.preloader = preloader
+        self.preload_seconds = None
+
+    def prepare(self):
+        """Load the same pinned session before traffic; never infer a chart."""
+        with self.lock:
+            if not self.model_ready:
+                started=perf_counter()
+                if self.preloader is not None:self.preloader(self.model)
+                else:
+                    from structural.detector import _verify_model
+                    from structural.runtime import session_for
+                    session_for(_verify_model(self.model))
+                self.preload_seconds=round(perf_counter()-started,6)
+                self.model_ready=True
+        return self.model_ready
 
     def detect(self, authorization, data, expected_hash=None):
         received = perf_counter()
@@ -57,6 +74,7 @@ class StructuralService:
         with self.lock:
             acquired = perf_counter()
             first_call = self.calls == 0
+            ready_before = self.model_ready
             with TemporaryDirectory(prefix='homr-') as directory:
                 if self.detector is None:
                     from structural.detector import detect
@@ -67,10 +85,12 @@ class StructuralService:
                 result = self.detector(path, model_path=self.model)
                 detector_seconds = perf_counter()-detector_started
             self.calls += 1
+            self.model_ready=True
         result = dict(result, source='uploaded-page', source_sha256=digest,
                       runtime='azure-cpu', service_seconds=round(perf_counter()-started, 6),
                       source_url=self.source_url, worker_id=self.worker_id,
                       service_timing=dict(validation_seconds=round(started-received,6),
                           lock_wait_seconds=round(acquired-started,6),
-                          detector_seconds=round(detector_seconds,6), first_call=first_call))
+                          detector_seconds=round(detector_seconds,6), first_call=first_call,
+                          model_ready_before=ready_before,preload_seconds=self.preload_seconds))
         return result
