@@ -9,6 +9,7 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from threading import Lock
 from time import perf_counter
+from uuid import uuid4
 
 from PIL import Image, UnidentifiedImageError
 
@@ -31,8 +32,11 @@ class StructuralService:
         self.detector = detector
         self.source_url = source_url
         self.lock = Lock()
+        self.worker_id = uuid4().hex[:12]
+        self.calls = 0
 
     def detect(self, authorization, data, expected_hash=None):
+        received = perf_counter()
         if not compare_digest(authorization or '', 'Bearer ' + self.token):
             raise RequestError(401, 'unauthorized')
         if not data or len(data) > MAX_BYTES:
@@ -50,14 +54,23 @@ class StructuralService:
         started = perf_counter()
         # Model sessions and the bounded geometry cache are shared per process.
         # Serialise inference per CPU instance; Azure scales independent instances.
-        with self.lock, TemporaryDirectory(prefix='homr-') as directory:
-            if self.detector is None:
-                from structural.detector import detect
-                self.detector = detect
-            path = Path(directory) / 'source.png'
-            path.write_bytes(data)  # Exact uploaded PNG, never recompressed or resized here.
-            result = self.detector(path, model_path=self.model)
+        with self.lock:
+            acquired = perf_counter()
+            first_call = self.calls == 0
+            with TemporaryDirectory(prefix='homr-') as directory:
+                if self.detector is None:
+                    from structural.detector import detect
+                    self.detector = detect
+                path = Path(directory) / 'source.png'
+                path.write_bytes(data)  # Exact uploaded PNG, never recompressed or resized here.
+                detector_started = perf_counter()
+                result = self.detector(path, model_path=self.model)
+                detector_seconds = perf_counter()-detector_started
+            self.calls += 1
         result = dict(result, source='uploaded-page', source_sha256=digest,
                       runtime='azure-cpu', service_seconds=round(perf_counter()-started, 6),
-                      source_url=self.source_url)
+                      source_url=self.source_url, worker_id=self.worker_id,
+                      service_timing=dict(validation_seconds=round(started-received,6),
+                          lock_wait_seconds=round(acquired-started,6),
+                          detector_seconds=round(detector_seconds,6), first_call=first_call))
         return result

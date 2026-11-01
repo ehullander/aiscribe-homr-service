@@ -1,8 +1,10 @@
 """HOMR structural service. SPDX-License-Identifier: AGPL-3.0-or-later."""
 import json
+import gzip
 import os
 from pathlib import Path
 from threading import Lock
+from time import perf_counter
 import azure.functions as func
 from service import StructuralService, RequestError, MODEL_SHA256
 
@@ -39,7 +41,17 @@ def detect(req):
     try:
         result = service().detect(req.headers.get('Authorization'), req.get_body(),
                                   req.headers.get('X-Source-SHA256'))
-        return func.HttpResponse(json.dumps(result, allow_nan=False), mimetype='application/json')
+        started=perf_counter()
+        data=json.dumps(result, allow_nan=False).encode()
+        headers={'X-AIScribe-JSON-Bytes':str(len(data))}
+        # The new client advertises this explicitly; older clients continue to
+        # receive the same uncompressed JSON representation.
+        if req.headers.get('Accept-Encoding','').strip().lower()=='gzip' and len(data)>4096:
+            data=gzip.compress(data,compresslevel=3)
+            headers['Content-Encoding']='gzip'
+        headers['X-AIScribe-Wire-Bytes']=str(len(data))
+        headers['X-AIScribe-Encode-Ms']=str(round((perf_counter()-started)*1000,3))
+        return func.HttpResponse(data, mimetype='application/json',headers=headers)
     except RequestError as error:
         return func.HttpResponse(json.dumps({'error': error.code}), status_code=error.status,
                                  mimetype='application/json')
