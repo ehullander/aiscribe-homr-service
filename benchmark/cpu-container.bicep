@@ -7,6 +7,8 @@ param runtimeImage string
 param bundleSha256 string
 param sourceUrl string
 param bootstrap string
+param adapterSource string
+param adapterSha256 string
 @secure()
 param bundleUrl string
 @secure()
@@ -31,6 +33,8 @@ resource benchmark 'Microsoft.ContainerInstance/containerGroups@2023-05-01' = {
         environmentVariables: [
           { name: 'HOMR_BUNDLE_URL', secureValue: bundleUrl }
           { name: 'HOMR_BUNDLE_SHA256', value: bundleSha256 }
+          { name: 'HOMR_CONTAINER_SERVER', value: adapterSource }
+          { name: 'HOMR_CONTAINER_SERVER_SHA256', value: adapterSha256 }
           { name: 'HOMR_BENCHMARK_TOKEN', secureValue: benchmarkToken }
           { name: 'HOMR_TLS_CERT', secureValue: tlsCertificate }
           { name: 'HOMR_TLS_KEY', secureValue: tlsPrivateKey }

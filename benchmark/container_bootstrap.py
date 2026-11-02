@@ -24,6 +24,10 @@ def main():
                     raise ValueError('Unsafe bundle path')
             source.extractall(root)
         archive.unlink()
+        adapter = os.environ['HOMR_CONTAINER_SERVER'].encode()
+        if hashlib.sha256(adapter).hexdigest() != os.environ['HOMR_CONTAINER_SERVER_SHA256']:
+            raise ValueError('Container adapter identity mismatch')
+        (root / 'container_server.py').write_bytes(adapter)
         sys.path[:0] = [str(root / '.python_packages/lib/site-packages'), str(root)]
         os.chdir(root)
         runpy.run_path(str(root / 'container_server.py'), run_name='__main__')
