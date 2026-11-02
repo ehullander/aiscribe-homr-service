@@ -35,3 +35,5 @@ base and license before deployment. Package with
 credential. Retain evidence, then remove the whole temporary resource group;
 do not leave a warm test worker running. The live app and its settings remain
 unchanged. This is CPU only; no GPU deployment is authorized here.
+
+CPU-only container follow-up: container_bootstrap.py verifies the bundle, then container_server.py exposes a private TLS benchmark. cpu-container.bicep declares the temporary 4-vCPU/8-GB worker. The model, preprocessing and detector are unchanged.
