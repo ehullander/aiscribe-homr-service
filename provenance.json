@@ -104,6 +104,18 @@
     ".gitignore": {
       "sha256": "cb3c5939a3734f540f83d5481992504bc5b2cbd235bd51bfb915679ba74568bd",
       "provenance": "Service exclusions"
+    },
+    "benchmark/function_app.py": {
+      "sha256": "2e14e75a38c91120e9962b199c47de14298ecc1d2cb3d3045c6c7958f679956d",
+      "provenance": "AIScribe isolated CPU benchmark from commit 502ab1d; production service unchanged"
+    },
+    "benchmark/README.md": {
+      "sha256": "950c1d4e9e3b61dc165d6abe6810d40e98258ed1dfe1c02746e5b2b323558036",
+      "provenance": "AIScribe isolated CPU benchmark from commit 502ab1d; production service unchanged"
+    },
+    "benchmark/runtime_benchmark.py": {
+      "sha256": "fcd52bf0292d823c759a48adb3635588609070827337bd786d9135ce7c121f58",
+      "provenance": "AIScribe isolated CPU benchmark from commit 502ab1d; production service unchanged"
     }
   }
 }
