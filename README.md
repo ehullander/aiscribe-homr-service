@@ -6,7 +6,8 @@ SQL connection, user database or Apple runtime is included.
 
 `provenance.json` records upstream files and every extracted file hash. The
 structural wrapper is copied from AIScribe's accepted detector. The only runtime
-changes disable Apple-native imports and reuse one verified CPU ONNX session.
+changes disable Apple-native imports, reuse one verified CPU ONNX session, and
+remove the inherited geometry-result cache. Every request performs inference.
 Image preparation, model input, tiling, thresholds and geometry are unchanged.
 
 Install `requirements.txt` in Python 3.13. Put the exact segmentation weight at
@@ -24,8 +25,8 @@ the transport. Existing HOMR preprocessing is performed inside the detector.
 
 `/api/source` publishes the corresponding-source link. `/api/health` identifies
 the model without triggering inference. Source requests and inputs never enter
-SQL. Inference scratch files are removed after each request. Model sessions and
-up to five geometry results are cached per process. One CPU inference executes
+SQL. Inference scratch files are removed after each request. Only the verified model session is retained per process. Chart geometry and
+image results are not cached across requests. One CPU inference executes
 at a time per instance; the hosting plan can scale instances independently.
 
 The surrounding app communicates through this service boundary. This repository

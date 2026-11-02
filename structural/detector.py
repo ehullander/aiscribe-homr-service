@@ -4,18 +4,14 @@ Uses HOMR 0.7.0 staff/note/bar geometry, without its OCR or music transformer.
 No downloads, API credentials, user corrections, or reference charts.
 """
 import hashlib
-from collections import OrderedDict
 from pathlib import Path
 from time import perf_counter
 import sys
-from copy import deepcopy
 import numpy as np
 from PIL import Image
 
 MODEL_SHA256='6ed36640db4ef5d223098b6d5efe4eda97c66b24a2c72faab8a018c749003a8d'
 _verified_models=set()
-_detection_cache=OrderedDict()  # At most one result per supported chart page.
-_MAX_CACHED_PAGES=5
 
 
 def available():
@@ -136,14 +132,6 @@ def detect(source: Path, *, model_path: Path | None=None):
     with Image.open(source) as image:original=np.asarray(image.convert('RGB'))[:,:,::-1].copy()
     prepared=resize_image(original)
     source_hash=hashlib.sha256(source.read_bytes()).hexdigest()
-    key=(str(model.resolve()),original.shape,prepared.shape,hashlib.sha256(memoryview(np.ascontiguousarray(prepared))).hexdigest())
-    if key in _detection_cache:
-        _detection_cache.move_to_end(key)
-        result=deepcopy(_detection_cache[key])
-        result.update(source=str(source.resolve()),source_sha256=source_hash,
-                      inference_cache_hit=True,prediction_seconds=0,geometry_seconds=0,
-                      elapsed_seconds=round(perf_counter()-started,3))
-        return result
     prediction_started=perf_counter()
     prediction=_predict(prepared,model)
     prediction_seconds=perf_counter()-prediction_started
@@ -220,8 +208,4 @@ def detect(source: Path, *, model_path: Path | None=None):
                 notehead_boxes=[dict(cx=float(n.center[0])*sx,cy=float(n.center[1])*sy,width=float(n.size[0])*sx,height=float(n.size[1])*sy) for n in heads],
                 elapsed_seconds=round(perf_counter()-started,3),api_calls=0,uses_user_edits=False,uses_rhythm_transformer=False,
                 inference_cache_hit=False,prediction_seconds=round(prediction_seconds,3),geometry_seconds=round(perf_counter()-geometry_started,3))
-    _detection_cache[key]=deepcopy(result)
-    _detection_cache.move_to_end(key)
-    while len(_detection_cache)>_MAX_CACHED_PAGES:
-        _detection_cache.popitem(last=False)
     return result

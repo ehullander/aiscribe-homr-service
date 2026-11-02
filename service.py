@@ -69,7 +69,7 @@ class StructuralService:
         except (UnidentifiedImageError, OSError, Image.DecompressionBombError):
             raise RequestError(400, 'invalid_png') from None
         started = perf_counter()
-        # Model sessions and the bounded geometry cache are shared per process.
+        # The loaded model session is shared; image and geometry results are not cached.
         # Serialise inference per CPU instance; Azure scales independent instances.
         with self.lock:
             acquired = perf_counter()

@@ -1,7 +1,8 @@
 {
   "upstream": "https://github.com/liebharc/homr",
   "upstream_version": "0.7.0",
-  "aiscribe_commit": "bfbc664e11d3b48ebe50602e4e263d8705c536bc",
+  "aiscribe_commit": "ba7ad27a33c3f17655e03ab82da448108dc52772",
+  "wrapper_baseline_commit": "3693133",
   "model_sha256": "6ed36640db4ef5d223098b6d5efe4eda97c66b24a2c72faab8a018c749003a8d",
   "files": {
     "homr/__init__.py": {
@@ -61,8 +62,8 @@
       "provenance": "HOMR 0.7.0: ios/AIScribePrototype/Vendor/app_packages/iphonesimulator/homr/resize.py"
     },
     "structural/detector.py": {
-      "sha256": "e5576b386e9c016b54af21d205272f415666df1d2a028596c1deadecf2489ea3",
-      "provenance": "AIScribe code/ocr/homr_structural.py; CPU availability and persistent session only"
+      "sha256": "20da97ca035004c4f1c0a0201a3457e9c80db1bbc5f1378b36380af99c785c1a",
+      "provenance": "AIScribe code/ocr/homr_structural.py; CPU availability, persistent model session, no geometry-result cache"
     },
     "structural/barline_fusion.py": {
       "sha256": "7acc7e1c9d00f3317f534727ca5fb36b4ba8190f248c378df759c6bb33bc2c02",
@@ -77,7 +78,7 @@
       "provenance": "AIScribe server/homr_service/function_app.py"
     },
     "service.py": {
-      "sha256": "4c079db3a72f7af54e15b314d849a955bab7c6455e6d9021ec43eb650cbfe001",
+      "sha256": "f2b4635ef5d223f702a1695fa9d23378a9ed305119c277ebc87cf3a6d78acad3",
       "provenance": "AIScribe server/homr_service/service.py"
     },
     "host.json": {
@@ -89,7 +90,7 @@
       "provenance": "AIScribe server/homr_service/requirements.txt"
     },
     "README.md": {
-      "sha256": "8638c2adf898ae40a0eb87b375d7808a11dffb7ba58be83a787ffc5eb09f54d2",
+      "sha256": "f62c900a5f5083105263758de8634dd489a0b6fae1dc1930e978e938c17c643a",
       "provenance": "AIScribe server/homr_service/README.md"
     },
     "structural/runtime.py": {
@@ -103,10 +104,6 @@
     ".gitignore": {
       "sha256": "cb3c5939a3734f540f83d5481992504bc5b2cbd235bd51bfb915679ba74568bd",
       "provenance": "Service exclusions"
-    },
-    "models/segnet.onnx": {
-      "sha256": "6ed36640db4ef5d223098b6d5efe4eda97c66b24a2c72faab8a018c749003a8d",
-      "provenance": "Pinned HOMR 0.7.0 segmentation weight"
     }
   }
 }
