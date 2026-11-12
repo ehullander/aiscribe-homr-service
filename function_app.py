@@ -77,17 +77,7 @@ def detect(req):
             'instance_id': instance_id(),
             'factory_seconds': round(factory_finished-entered, 6),
             'body_seconds': round(body_finished-factory_finished, 6)}}
-        started=perf_counter()
-        data=json.dumps(result, allow_nan=False).encode()
-        headers={'X-AIScribe-JSON-Bytes':str(len(data))}
-        # The new client advertises this explicitly; older clients continue to
-        # receive the same uncompressed JSON representation.
-        if req.headers.get('Accept-Encoding','').strip().lower()=='gzip' and len(data)>4096:
-            data=gzip.compress(data,compresslevel=3)
-            headers['Content-Encoding']='gzip'
-        headers['X-AIScribe-Wire-Bytes']=str(len(data))
-        headers['X-AIScribe-Encode-Ms']=str(round((perf_counter()-started)*1000,3))
-        return func.HttpResponse(data, mimetype='application/json',headers=headers)
+        return response(result, req)
     except RequestError as error:
         return func.HttpResponse(json.dumps({'error': error.code}), status_code=error.status,
                                  mimetype='application/json')
@@ -95,6 +85,42 @@ def detect(req):
         # A page with no supported staff geometry is a detector limitation, not
         # a transport failure. The caller retains Apple evidence and source.
         return func.HttpResponse('{"error":"no_supported_geometry"}', status_code=422,
+                                 mimetype='application/json')
+
+
+def response(result, req):
+    started=perf_counter()
+    data=json.dumps(result, allow_nan=False).encode()
+    headers={'X-AIScribe-JSON-Bytes':str(len(data))}
+    # The new client advertises this explicitly; older clients continue to
+    # receive the same uncompressed JSON representation.
+    if req.headers.get('Accept-Encoding','').strip().lower()=='gzip' and len(data)>4096:
+        data=gzip.compress(data,compresslevel=3)
+        headers['Content-Encoding']='gzip'
+    headers['X-AIScribe-Wire-Bytes']=str(len(data))
+    headers['X-AIScribe-Encode-Ms']=str(round((perf_counter()-started)*1000,3))
+    return func.HttpResponse(data, mimetype='application/json',headers=headers)
+
+
+@app.route(route='detect-batch', methods=['POST'])
+def detect_batch(req):
+    received_at = time()
+    entered = perf_counter()
+    try:
+        detector = service()
+        factory_finished = perf_counter()
+        body = req.get_body()
+        body_finished = perf_counter()
+        from structural.batch import detect as run_batch
+        result = run_batch(detector, req.headers.get('Authorization'), body)
+        result.update(model_sha256=MODEL_SHA256, source_url=source_url(),
+                      service_timing=dict(http_entry_at=received_at,
+                          module_loaded_at=_module_loaded_at, instance_id=instance_id(),
+                          factory_seconds=round(factory_finished-entered, 6),
+                          body_seconds=round(body_finished-factory_finished, 6)))
+        return response(result, req)
+    except RequestError as error:
+        return func.HttpResponse(json.dumps({'error': error.code}), status_code=error.status,
                                  mimetype='application/json')
 
 

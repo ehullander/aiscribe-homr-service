@@ -42,3 +42,27 @@ inference. These fields distinguish Azure admission from actual detector work;
 cross-machine clock differences must be considered when comparing timestamps.
 No chart, credential or additional persistent diagnostic is logged.
 
+
+## Opt-in page batching
+
+`POST /api/detect-batch` accepts Bearer-authenticated JSON:
+
+```json
+{"version":1,"pages":[{"id":"page-1","sha256":"<64 lowercase hex>","png":"<base64 original PNG>"}]}
+```
+
+One to five unique page IDs, at most 32 MiB of decoded PNG bytes in total.
+Each PNG follows the existing per-page validation, preprocessing, model, serial
+lock and geometry path unchanged. There is no stitching, shared normalization,
+resizing change or cross-page coordinate transform. Each response page retains
+its ID/hash and either status 200 with the normal detector result, or a bounded
+page error (for example 422 for unsupported geometry); the overall status is
+`complete` or `partial`. Invalid envelopes/auth are rejected before inference.
+PNG/hash errors are page-level and do not discard successful pages.
+
+The HTTP response supports the same negotiated gzip as `/api/detect`. Batch
+HTTP entry/load timing is at the envelope level; each page has its own existing
+service timing, offset and duration. The `model_ready_before` field is sampled
+after mutex acquisition immediately before inference, not at HTTP arrival.
+This endpoint is opt-in; single-page clients are unchanged. No inputs, results
+or diagnostic payloads are added to persistent storage.
