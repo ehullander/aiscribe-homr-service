@@ -5,6 +5,7 @@ import os
 import logging
 import hashlib
 import socket
+import re
 from pathlib import Path
 from threading import Lock, Thread
 from time import perf_counter, time
@@ -15,6 +16,17 @@ app = func.FunctionApp(http_auth_level=func.AuthLevel.ANONYMOUS)
 _service = None
 _lock = Lock()
 _module_loaded_at = time()
+_build_info = Path(__file__).with_name('build-info.json')
+
+
+def source_url():
+    try:
+        commit = json.loads(_build_info.read_text())['commit']
+    except FileNotFoundError:
+        return os.environ.get('HOMR_SOURCE_URL', '')
+    if not isinstance(commit, str) or not re.fullmatch('[0-9a-f]{40}', commit):
+        raise ValueError('Invalid packaged source identity')
+    return 'https://github.com/ehullander/aiscribe-homr-service/tree/' + commit
 
 
 def instance_id():
@@ -29,14 +41,14 @@ def service():
         if _service is None:
             _service = StructuralService(os.environ.get('HOMR_SERVICE_TOKEN'),
                 Path(__file__).parent / 'models' / 'segnet.onnx',
-                source_url=os.environ.get('HOMR_SOURCE_URL', ''))
+                source_url=source_url())
     return _service
 
 
 @app.route(route='health', methods=['GET'])
 def health(req):
     return func.HttpResponse(json.dumps(dict(service='homr-structural', model_sha256=MODEL_SHA256,
-        device='cpu', source_url=os.environ.get('HOMR_SOURCE_URL', ''),
+        device='cpu', source_url=source_url(),
         model_ready=bool(_service and _service.model_ready),
         worker_id=_service.worker_id if _service else None,
         instance_id=instance_id(), module_loaded_at=_module_loaded_at)), mimetype='application/json')
@@ -44,7 +56,7 @@ def health(req):
 
 @app.route(route='source', methods=['GET'])
 def source(req):
-    url = os.environ.get('HOMR_SOURCE_URL', '')
+    url = source_url()
     return func.HttpResponse(json.dumps(dict(license='AGPL-3.0-or-later', corresponding_source=url)),
                              mimetype='application/json')
 

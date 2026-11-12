@@ -3,6 +3,8 @@ import json
 import os
 import time
 import unittest
+from pathlib import Path
+from tempfile import TemporaryDirectory
 from types import SimpleNamespace
 from unittest.mock import patch
 
@@ -11,6 +13,16 @@ import function_app as http
 
 
 class AdmissionTimingTests(unittest.TestCase):
+    def test_source_offer_uses_actual_git_package_instead_of_stale_setting(self):
+        with TemporaryDirectory() as directory:
+            path = Path(directory) / 'build-info.json'
+            path.write_text(json.dumps({'commit':'a'*40}))
+            with patch.object(http, '_build_info', path), patch.dict(os.environ, {'HOMR_SOURCE_URL':'old-setting'}):
+                self.assertEqual(http.source_url(),
+                    'https://github.com/ehullander/aiscribe-homr-service/tree/'+'a'*40)
+                path.write_text(json.dumps({'commit':'not-a-commit'}))
+                with self.assertRaises(ValueError):http.source_url()
+
     def test_timing_preserves_geometry_and_does_not_mutate_detector_result(self):
         original = {'systems': [{'top': 1.25, 'bottom': 98.75}] * 500,
                     'worker_id': 'process-1', 'service_timing': {'detector_seconds': 2.5}}
