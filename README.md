@@ -32,3 +32,13 @@ at a time per instance; the hosting plan can scale instances independently.
 The surrounding app communicates through this service boundary. This repository
 contains its corresponding source and license; repository separation alone is
 not a legal determination about any larger deployment.
+# Admission diagnostics
+
+The HTTP adapter adds entry time, module load time, an opaque machine hash,
+service-factory time and body-read time under `service_timing`. The existing
+detector geometry, model, serial inference lock and input PNG remain unchanged.
+Health also identifies its prepared process and machine without starting an
+inference. These fields distinguish Azure admission from actual detector work;
+cross-machine clock differences must be considered when comparing timestamps.
+No chart, credential or additional persistent diagnostic is logged.
+

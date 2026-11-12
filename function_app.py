@@ -3,15 +3,24 @@ import json
 import gzip
 import os
 import logging
+import hashlib
+import socket
 from pathlib import Path
 from threading import Lock, Thread
-from time import perf_counter
+from time import perf_counter, time
 import azure.functions as func
 from service import StructuralService, RequestError, MODEL_SHA256
 
 app = func.FunctionApp(http_auth_level=func.AuthLevel.ANONYMOUS)
 _service = None
 _lock = Lock()
+_module_loaded_at = time()
+
+
+def instance_id():
+    # An opaque machine identity, distinct from StructuralService's process ID.
+    raw = os.environ.get('WEBSITE_INSTANCE_ID') or os.environ.get('WEBSITE_ROLE_INSTANCE_ID') or socket.gethostname()
+    return hashlib.sha256(raw.encode()).hexdigest()[:16]
 
 
 def service():
@@ -28,7 +37,9 @@ def service():
 def health(req):
     return func.HttpResponse(json.dumps(dict(service='homr-structural', model_sha256=MODEL_SHA256,
         device='cpu', source_url=os.environ.get('HOMR_SOURCE_URL', ''),
-        model_ready=bool(_service and _service.model_ready))), mimetype='application/json')
+        model_ready=bool(_service and _service.model_ready),
+        worker_id=_service.worker_id if _service else None,
+        instance_id=instance_id(), module_loaded_at=_module_loaded_at)), mimetype='application/json')
 
 
 @app.route(route='source', methods=['GET'])
@@ -40,9 +51,20 @@ def source(req):
 
 @app.route(route='detect', methods=['POST'])
 def detect(req):
+    received_at = time()
+    entered = perf_counter()
     try:
-        result = service().detect(req.headers.get('Authorization'), req.get_body(),
-                                  req.headers.get('X-Source-SHA256'))
+        detector = service()
+        factory_finished = perf_counter()
+        body = req.get_body()
+        body_finished = perf_counter()
+        result = detector.detect(req.headers.get('Authorization'), body,
+                                 req.headers.get('X-Source-SHA256'))
+        result = {**result, 'service_timing': {**result.get('service_timing', {}),
+            'http_entry_at': received_at, 'module_loaded_at': _module_loaded_at,
+            'instance_id': instance_id(),
+            'factory_seconds': round(factory_finished-entered, 6),
+            'body_seconds': round(body_finished-factory_finished, 6)}}
         started=perf_counter()
         data=json.dumps(result, allow_nan=False).encode()
         headers={'X-AIScribe-JSON-Bytes':str(len(data))}
