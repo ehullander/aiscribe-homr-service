@@ -70,8 +70,9 @@ def detect(req):
         factory_finished = perf_counter()
         body = req.get_body()
         body_finished = perf_counter()
+        diagnostic = {'profile_cpu': True} if req.headers.get('X-AIScribe-Profile-CPU') == '1' else {}
         result = detector.detect(req.headers.get('Authorization'), body,
-                                 req.headers.get('X-Source-SHA256'))
+                                 req.headers.get('X-Source-SHA256'), **diagnostic)
         result = {**result, 'service_timing': {**result.get('service_timing', {}),
             'http_entry_at': received_at, 'module_loaded_at': _module_loaded_at,
             'instance_id': instance_id(),
@@ -112,7 +113,8 @@ def detect_batch(req):
         body = req.get_body()
         body_finished = perf_counter()
         from structural.batch import detect as run_batch
-        result = run_batch(detector, req.headers.get('Authorization'), body)
+        result = run_batch(detector, req.headers.get('Authorization'), body,
+                           profile_cpu=req.headers.get('X-AIScribe-Profile-CPU') == '1')
         result.update(model_sha256=MODEL_SHA256, source_url=source_url(),
                       service_timing=dict(http_entry_at=received_at,
                           module_loaded_at=_module_loaded_at, instance_id=instance_id(),

@@ -50,7 +50,7 @@ def pages(authorization, body, token):
         raise RequestError(400, 'invalid_batch') from None
 
 
-def detect(detector, authorization, body):
+def detect(detector, authorization, body, *, profile_cpu=False):
     started = perf_counter()
     inputs = pages(authorization, body, detector.token)
     decoded = perf_counter()
@@ -62,7 +62,8 @@ def detect(detector, authorization, body):
         try:
             # Each original PNG follows the same validation, preprocessing,
             # model session, geometry, and source coordinates as /detect.
-            row.update(status=200, result=detector.detect(authorization, data, digest))
+            diagnostic = {'profile_cpu': True} if profile_cpu else {}
+            row.update(status=200, result=detector.detect(authorization, data, digest, **diagnostic))
         except RequestError as error:
             row.update(status=error.status, error=error.code)
         except ValueError:

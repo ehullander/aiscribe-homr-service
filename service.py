@@ -52,7 +52,7 @@ class StructuralService:
                 self.model_ready=True
         return self.model_ready
 
-    def detect(self, authorization, data, expected_hash=None):
+    def detect(self, authorization, data, expected_hash=None, *, profile_cpu=False):
         received = perf_counter()
         if not compare_digest(authorization or '', 'Bearer ' + self.token):
             raise RequestError(401, 'unauthorized')
@@ -81,9 +81,24 @@ class StructuralService:
                     self.detector = detect
                 path = Path(directory) / 'source.png'
                 path.write_bytes(data)  # Exact uploaded PNG, never recompressed or resized here.
+                probe = None
+                if profile_cpu:
+                    from structural.cpu_profile import CPUProbe
+                    try:
+                        probe = CPUProbe().start()
+                    except Exception:
+                        probe = None
                 detector_started = perf_counter()
                 result = self.detector(path, model_path=self.model)
                 detector_seconds = perf_counter()-detector_started
+                cpu_profile = None
+                if probe is not None:
+                    try:
+                        cpu_profile = probe.finish()
+                    except Exception:
+                        cpu_profile = {'available': False}
+                elif profile_cpu:
+                    cpu_profile = {'available': False}
             self.calls += 1
             self.model_ready=True
         result = dict(result, source='uploaded-page', source_sha256=digest,
@@ -93,4 +108,6 @@ class StructuralService:
                           lock_wait_seconds=round(acquired-started,6),
                           detector_seconds=round(detector_seconds,6), first_call=first_call,
                           model_ready_before=ready_before,preload_seconds=self.preload_seconds))
+        if cpu_profile is not None:
+            result['service_timing']['cpu_profile'] = cpu_profile
         return result

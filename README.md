@@ -66,3 +66,19 @@ service timing, offset and duration. The `model_ready_before` field is sampled
 after mutex acquisition immediately before inference, not at HTTP arrival.
 This endpoint is opt-in; single-page clients are unchanged. No inputs, results
 or diagnostic payloads are added to persistent storage.
+
+## Opt-in CPU diagnosis
+
+Authenticated detect and detect-batch requests may set
+`X-AIScribe-Profile-CPU: 1` to add `service_timing.cpu_profile` per page.
+It measures the detector's process CPU time versus wall time and read-only
+Linux cgroup CPU usage/throttling deltas, quota, CPU model/affinity, and OpenCV
+thread count. Process CPU includes all threads in the Python process; cgroup
+counters include all processes in that cgroup. Ancestor quota limits may not
+be visible. Missing/reset counters stay unknown, not zero. These are elapsed
+interval/counter observations, not a line-level CPU profiler.
+
+Ordinary requests do not collect these diagnostics. Data is returned only in
+the existing authenticated response, with no new persistent logs or storage.
+Read failures cannot fail inference. This flag changes no model, image,
+geometry rule, thread count or hosting policy.
